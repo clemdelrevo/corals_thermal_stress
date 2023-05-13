@@ -3,7 +3,7 @@
 wrangle_thermal_stress <- function(thermal_stress_data, ts_data_source){
   
   #targets::tar_load(thermal_stress_data) ; thermal_stress_data = list.files("data/thermal_stress/kalmus_ef", full.names = TRUE)
-  #targets::tar_load(ts_data_source) ; ts_data_source = "kalmus_ef"
+  #targets::tar_load(ts_data_source) ; ts_data_source = "dixon_pclm"
   
   if (ts_data_source == "dixon_pclm") {
   

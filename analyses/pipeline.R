@@ -45,6 +45,9 @@ list(
  ## get final taxonomy ---
  ,tar_target(final_taxonomy, get_final_taxonomy(taxonomy, valid_ctdb, valid_habitats, valid_corals_range))
  
+ ## get grid
+ ,tar_target(millenium_grid, get_millenium_grid(millenium_reef, cellsize = 0.06981317))
+ 
  ## get specific richness map ---
  #,tar_target(global_specific_richness_map, get_specific_richness_map(final_taxonomy, coral_reef_grid))
  
