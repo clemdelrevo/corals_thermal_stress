@@ -49,11 +49,14 @@ list(
  #,tar_target(global_specific_richness_map, get_specific_richness_map(final_taxonomy, coral_reef_grid))
  
  ## get analyses of dixon's data
- ,tar_target(analyses_dixon, get_eo_analyses_dixon(thermal_dixon, final_taxonomy))
+ ,tar_target(analyse_dixon, get_analyse_dixon(thermal_dixon, final_taxonomy))
  
  ## get impact of thermal stress in dixon data
- #,tar_target(final_impacts, get_impact_sp(analyses_dixon, final_taxonomy))
+ ,tar_target(final_impacts, get_impact_sp(analyse_dixon, final_taxonomy))
  #,tar_target(dixon_family_impacts, get_dixon_impact_family(final_impacts))
+ 
+ ## get boxplot threshold
+ ,tar_target(boxplot_threshold, get_boxplot_impact_family(final_impacts))
  
 
 )
