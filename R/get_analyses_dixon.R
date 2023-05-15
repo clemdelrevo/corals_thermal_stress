@@ -1,38 +1,54 @@
-get_analyses_dixon <- function(thermal_stress, final_taxonomy) {
+get_eo_analyses_dixon <- function(thermal_dixon, final_taxonomy) {
   
   #targets::tar_load(final_taxonomy)
-  #targets::tar_load(dixon_4km)
+  #targets::tar_load(thermal_dixon)
   
-  get_analyses_sp <- lapply(1:nrow(final_taxonomy), function(i){
+  #thermal_dixon <- thermal_dixon[thermal_dixon$regions %in% c("Persian Gulf", "Red Sea"), ]
+  #final_taxonomy <- final_taxonomy[c(2, 83, 127, 711), ]
+  
+  geoms <- sf::st_geometry(final_taxonomy)
+  
+  get_analyses_sp <- setNames(parallel::mclapply(geoms, function(sp){
     
-    #i = 716
-    sp      <- final_taxonomy[i, ]
-    sp_name <- sp$final_genus_sp
+    #sp = geoms[[1]]
     
-    if(sf::st_is_empty(sp)) {message(paste0("no range for ", sp_name)) ; return(sp)}
+    #i = 1
+    # sp       <- final_taxonomy[i, "final_genus_sp"]
+    # sp_name  <- sp$final_genus_sp
+    # 
+    # if(sf::st_is_empty(sp)) {message(paste0("no range for ", sp_name)) ; return(sp)}
+    # 
+    # message(sp_name)
     
-    message(sp_name)
+    # geoms <- sf::st_geometry(thermal_dixon)
+    # 
+    # intersect_line <- pbmcapply::pbmclapply(1:nrow(thermal_dixon), function(l) {
+    #   
+    #   #l = 1
+    #   thermal_line <- thermal_dixon[l, ]
+    #   analyses_sp  <- sf::st_intersects(thermal_line, sp, sparse = FALSE)
+    #   
+    #   if(analyses_sp == FALSE) {analyses_sp = 0 ; return(analyses_sp)}
+    #   
+    #   if(analyses_sp == TRUE) {analyses_sp = 1 ; return(analyses_sp)}
+    #   
+    #   
+    # })
+    # 
+    # analyse_sp <- data.frame(do.call(rbind, intersect_line))
+    # colnames(analyse_sp) <- sp_name
     
-    intersect_line <- pbmcapply::pbmclapply(1:nrow(dixon_4km), function(l) {
-      
-      #l = 1
-      thermal_line <- dixon_4km[l, ]
-      analyses_sp  <- sf::st_intersects(thermal_line, sp, sparse = FALSE)
-      
-      if(analyses_sp == FALSE) {analyses_sp = 0 ; return(analyses_sp)}
-      
-      if(analyses_sp == TRUE) {analyses_sp = 1 ; return(analyses_sp)}
-      
-      
-    }, mc.cores = 8)
+    analyses_sp <- sf::st_intersects(thermal_dixon, sp)
     
-    analyse_sp <- data.frame(do.call(rbind, intersect_line))
-    colnames(analyse_sp) <- sp_name
+    
+    return(sapply(analyses_sp, length))
 
-  })
+  }), final_taxonomy$final_genus_sp)
   
-  final_analyse_sp <- cbind(analyses_sp)
+  analyse_dixon <- data.frame(get_analyses_sp)
   
-  final_dixon_4km <- data.frame(cbind(dixon_4km, final_analyse_sp))
+  analyse_dixon <- cbind(thermal_dixon, analyse_dixon)
+  
+  return(analyse_dixon)
 
 }

@@ -1,6 +1,6 @@
 get_4km_dixon <- function(thermal_stress, millenium_grid) {
   
-  #targets::tar_load(thermal_stress)
+  #targets::tar_load(thermal_dixon)
   #targets::tar_load(millenium_grid)
   
   thermal_stress <- thermal_stress[thermal_stress$regions == "East Pacific", ]
@@ -12,10 +12,10 @@ get_4km_dixon <- function(thermal_stress, millenium_grid) {
     message(l)
     millenium_line <- millenium_grid[l, ]
     
-    intersect_line <- pbmcapply::pbmclapply(1:nrow(thermal_stress), function(i){
+    intersect_line <- pbmcapply::pbmclapply(1:nrow(thermal_dixon), function(i){
   
       #i = 2
-      thermal_line <- thermal_stress[i, ]
+      thermal_line <- thermal_dixon[i, ]
       data_line <- sf::st_intersects(millenium_line, thermal_line, sparse = FALSE)
       
       return(data_line)

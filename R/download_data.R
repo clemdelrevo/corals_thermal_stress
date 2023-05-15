@@ -56,22 +56,23 @@ download_corals_range <- function(){
 
 #this data has been converted from xls to csv
 
-download_thermal_stress <- function(ts_data_source){
-  
-  if (ts_data_source == "dixon_pclm") {
+download_thermal_dixon <- function(){
   
     #download to https://doi.org/10.1371/journal.pclm.0000004.s013
     
     #dir.create("data/thermal_stress")
-    thermal_stress_csv <- "data/thermal_stress/dixon_pclm/journal.pclm.0000004.s013.csv"
-    return(thermal_stress_csv)
-  }
+    thermal_dixon_csv <- "data/thermal_stress/dixon_pclm/journal.pclm.0000004.s013.csv"
+    
+    return(thermal_dixon_csv)
+    
+}
   
-  if (ts_data_source =="kalmus_ef") {
+download_thermal_kalmus <- function(){
+  
     
-    return(list.files("data/thermal_stress/kalmus_ef", full.names = TRUE))
+    thermal_kalmus_nc <- list.files("data/thermal_stress/kalmus_ef", full.names = TRUE)
     
-  }
+    return(thermal_kalmus_nc)
   
 }
 

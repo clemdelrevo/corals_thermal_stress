@@ -1,29 +1,27 @@
 # Read the data and put some minors transformations ----------------------------
 
-wrangle_thermal_stress <- function(thermal_stress_data, ts_data_source){
+wrangle_thermal_dixon <- function(thermal_dixon_csv){
   
-  #targets::tar_load(thermal_stress_data) ; thermal_stress_data = list.files("data/thermal_stress/kalmus_ef", full.names = TRUE)
-  #targets::tar_load(ts_data_source) ; ts_data_source = "dixon_pclm"
-  
-  if (ts_data_source == "dixon_pclm") {
+  #targets::tar_load(thermal_dixon_csv)
   
     # read data and rename columns
-    thermal_stress        <- read.csv2(thermal_stress_csv, header = FALSE, dec = ",", skip = 2)
-    names(thermal_stress) <- c("regions", "longitude", "latitude", "present_stress",
+    thermal_dixon        <- read.csv2(thermal_dixon_csv, header = FALSE, dec = ",", skip = 2)
+    names(thermal_dixon) <- c("regions", "longitude", "latitude", "present_stress",
                                "stress_1.5", "stress_2", "stress_3", "stress_4")
     
     # transform in sf object
-    thermal_stress <- sf::st_as_sf(thermal_stress, coords = c("longitude", "latitude"))
+    thermal_dixon <- sf::st_as_sf(thermal_dixon, coords = c("longitude", "latitude"))
     # put crs
-    sf::st_crs(thermal_stress) <- 4326
-    thermal_stress             <- sf::st_make_valid(thermal_stress)
+    sf::st_crs(thermal_dixon) <- 4326
+    thermal_dixon             <- sf::st_make_valid(thermal_dixon)
     
-    return(thermal_stress)
+    return(thermal_dixon)
   }
   
-  if (ts_data_source =="kalmus_ef") {
+wrangle_thermal_kalmus <- function(thermal_kalmus_nc) {
+
     
-    splits <- strsplit(basename(thermal_stress_data), "_")
+    splits <- strsplit(basename(thermal_kalmus_nc), "_")
     th_data <- data.frame(ssp = sapply(splits, "[", 5),
                           thermal_departure  = sapply(splits, "[", 6),
                           threshold = sapply(strsplit(sapply(splits, "[", 7), "\\."), "[", 1),
@@ -40,14 +38,13 @@ wrangle_thermal_stress <- function(thermal_stress_data, ts_data_source){
       d$departure_year
     })), th_data$col_name))
     
-    thermal_stress <- cbind(thermal_stress, depart_years)
-    thermal_stress <- sf::st_as_sf(thermal_stress, coords = c("x", "y"))
-    sf::st_crs(thermal_stress) <- sf::st_crs(4326)
-    thermal_stress <- sf::st_wrap_dateline(thermal_stress)
-    return(thermal_stress)
+    thermal_kalmus <- cbind(thermal_stress, depart_years)
+    thermal_kalmus <- sf::st_as_sf(thermal_kalmus, coords = c("x", "y"))
+    sf::st_crs(thermal_kalmus) <- sf::st_crs(4326)
+    thermal_kalmus <- sf::st_wrap_dateline(thermal_kalmus)
     
-  }
-  
+    return(thermal_kalmus)
+    
 }
 
 wrangle_millenium_reef <- function(millenium_reef_shp){
