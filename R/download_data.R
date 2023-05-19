@@ -223,3 +223,24 @@ download_correspondance_aca_iucn <- function(){
   return(correspondance_aca_iucn_csv)
   
 }
+
+# ---- REEF AT RISK ------------------------------------------------------------
+
+download_reef_at_risk <- function(){
+  
+  # download to http://datasets.wri.org/dataset/b3f0de73-21ea-4ca4-b81f-c4f2d0019c5b/resource/2c3efd8e-3f8a-4d51-80bf-4c48e27ec67d/download/socialvulnerability.zip
+  
+  reef_at_risk_url  <- "http://datasets.wri.org/dataset/b3f0de73-21ea-4ca4-b81f-c4f2d0019c5b/resource/2c3efd8e-3f8a-4d51-80bf-4c48e27ec67d/download/socialvulnerability.zip"
+  reef_at_risk_path <- "data/"
+  reef_at_risk_zip  <- "data/socialvulnerability.zip"
+  old_name          <- "data/Social_Vulnerability"
+  new_name          <- "data/reef_at_risk"
+  
+  download.file(reef_at_risk_url, destfile = reef_at_risk_zip, method = "libcurl")
+  unzip(reef_at_risk_zip, exdir = reef_at_risk_path)
+  file.rename(old_name, new_name)
+  
+  reef_at_risk_shp <- list.files(new_name, full.names = TRUE, pattern = ".shp$")
+  
+  return(reef_at_risk_shp)
+}

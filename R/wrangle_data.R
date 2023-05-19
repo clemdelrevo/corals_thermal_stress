@@ -98,6 +98,9 @@ wrangle_coral_habitats <- function(coral_habitats, hab_ok = c("Suitable")){
     suitability <- coral_habitats$coral_habitats[[n]]$result$suitability
     suitability <- unlist(suitability)
     data        <- data.frame(cbind(id, habitat, suitability))
+    data$category <- rep(coral_habitats$habitats_coral_sps$result$category[[n]], nrow(data))
+    
+    return(data)
     
   })
   
@@ -165,5 +168,17 @@ wrangle_correspondance_aca_iucn <- function(correspondance_aca_iucn_csv){
   read.csv2(correspondance_aca_iucn_csv,
             check.names = FALSE,
             row.names = 1)
+  
+}
+
+wrangle_reef_at_risk <- function(reef_at_risk_shp) {
+  
+  #targets::tar_load(reef_at_risk_shp)
+  
+  reef_at_risk <- sf::read_sf(reef_at_risk_shp)
+  reef_at_risk <- sf::st_make_valid(reef_at_risk)
+  reef_at_risk <- sf::st_transform(reef_at_risk, 4326)
+  
+  return(reef_at_risk)
   
 }

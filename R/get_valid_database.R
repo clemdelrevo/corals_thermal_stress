@@ -50,8 +50,9 @@ get_valid_coral_range <- function(taxonomy, corals_range){
   
   valid_taxon  <- unique(taxonomy$final_genus_sp)
   valid_taxon  <- na.omit(valid_taxon)
+  valid_taxon  <- valid_taxon[order(valid_taxon)]
 
-  valid_corals_range <- do.call(rbind, parallel::mclapply(1:length(valid_taxon), function(i) {
+  valid_corals_range <- do.call(rbind, lapply(1:length(valid_taxon), function(i) {
     
     #i = 36
     sp_valid <- valid_taxon[[i]]
@@ -85,8 +86,6 @@ get_valid_coral_range <- function(taxonomy, corals_range){
     
   })) 
   
-  valid_corals_range <- valid_corals_range[order(valid_corals_range$final_genus_sp),]
-  
   return(valid_corals_range)
   
 }
@@ -97,17 +96,20 @@ get_valid_habitats <- function(taxonomy, habitat_sp, correspondance_aca_iucn, Ot
   #targets::tar_load(habitat_sp)
   #targets::tar_load(correspondance_aca_iucn)
   
-  habitat_sp     <- habitat_sp[-658]
-  valid_taxon    <- unique(taxonomy$final_genus_sp)
-  valid_taxon    <- na.omit(valid_taxon)
-  valid_habitats <- list()
+  habitat_sp       <- habitat_sp[-658]
+  valid_taxon      <- unique(taxonomy$final_genus_sp)
+  valid_taxon      <- na.omit(valid_taxon)
+  id_statut        <- 1:9
+  statut           <- c("EX", "EW", "CR", "EN", "VU", "NT", "LC", "DD", "NE")
+  names(id_statut) <- statut
+  valid_habitats   <- list()
   
   for(i in seq_along(valid_taxon)){
     
-    #i = 99
+    #i = 12
+    message(i)
     sp_valid <- valid_taxon[[i]]
-    syn      <- taxonomy$genus_sp[taxonomy$final_genus_sp == sp_valid]
-    syn      <- na.omit(syn)
+    syn      <- taxonomy$genus_sp[taxonomy$final_genus_sp %in% sp_valid]
 
     if(length(which(names(habitat_sp) %in% syn)) == 0){
       
@@ -127,10 +129,21 @@ get_valid_habitats <- function(taxonomy, habitat_sp, correspondance_aca_iucn, Ot
         return(habitat_filter)
     
         })
+      
+      statut_list <- lapply(fusion, function(sp) {
+        
+        statut <- as.character(sp$category)
+        
+        return(statut)
+        
+      })
   
+      final_statut   <- unique(unlist(statut_list, use.names = FALSE))
+      final_statut   <- names(which.min(id_statut[final_statut]))
       final_habitats <- unique(unlist(habitat_list, use.names = FALSE))
+      final_statut   <- rep(final_statut, length(final_habitats))
       final_genus_sp <- rep(sp_valid, length(final_habitats))
-      data           <- data.frame(cbind(final_genus_sp, final_habitats))
+      data           <- data.frame(cbind(final_genus_sp, final_habitats, final_statut))
         
       valid_habitats[[i]] <- data
         
@@ -140,8 +153,9 @@ get_valid_habitats <- function(taxonomy, habitat_sp, correspondance_aca_iucn, Ot
       single_sp <- names(habitat_sp) %in% syn
       n         <- which(single_sp)
       final_habitats <- unlist(habitat_sp[[n]]$habitat, use.names = FALSE)
+      final_statut   <- unlist(habitat_sp[[n]]$category, use.names = FALSE)
       final_genus_sp <- rep(sp_valid, length(final_habitats))
-      data           <- data.frame(cbind(final_genus_sp, final_habitats))
+      data           <- data.frame(cbind(final_genus_sp, final_habitats, final_statut))
       
       valid_habitats[[i]] <- data
       
@@ -150,63 +164,125 @@ get_valid_habitats <- function(taxonomy, habitat_sp, correspondance_aca_iucn, Ot
   }
     
   valid_habitats <- valid_habitats[!sapply(valid_habitats, is.null)]
+  valid_habitats <- do.call(rbind, valid_habitats)
   
-  # correspondance between aca and iucn
-  valid_habitats <- parallel::mclapply(1:length(valid_habitats), function(i){
+  
+  in_reef  <- c("Back Slope", "Foreslope (Outer Reef Slope)", "Inter-Reef Rubble Substrate", 
+               "Inter-Reef Soft Substrate", "Lagoon", "Outer Reef Channel", "Marine Neritic - Coral Reef")
+  out_reef <- c("Artificial/Marine - Marine Anthropogenic Structures", "Marine Intertidal - Mangrove Submerged Roots", 
+                "Marine Intertidal - Rocky Shoreline", "Marine Intertidal - Tidepools", "Marine Neritic - Seagrass (Submerged)", 
+                "Marine Neritic - Subtidal Loose Rock/pebble/gravel", "Marine Neritic - Subtidal Muddy", 
+                "Marine Neritic - Subtidal Rock and Rocky Reefs", "Marine Neritic - Subtidal Sandy", "Marine Neritic - Subtidal Sandy-Mud" )
+  
+  data.frame(do.call(rbind, lapply(levels(as.factor(valid_habitats$final_genus_sp)), function(sp){
     
-    message("specie ", i)
-    #i = 627
+    #sp = "Acropora_abrolhosensis"
+    message(sp)
     
-    final_genus_sp <- unique(valid_habitats[[i]]$final_genus_sp)
-    iucn_hab_sp <- valid_habitats[[i]]
+    specie <- valid_habitats[valid_habitats$final_genus_sp == sp, ]
     
-    if(length(iucn_hab_sp$final_habitats) == 1){
+    if(any(specie$final_habitats %in% in_reef)) {
       
-      val_aca_hab_sp <- correspondance_aca_iucn[, iucn_hab_sp$final_habitats]
-      aca_hab_sp <- rownames(correspondance_aca_iucn)
-      data_all <- data.frame(t(val_aca_hab_sp))
-      colnames(data_all) <- aca_hab_sp
-      data <- cbind(final_genus_sp, data_all)
-      
-      data$Other <- Other
-      
-      data
+      final_valid_habitats <- data.frame(final_genus_sp = unique(specie$final_genus_sp),
+                                   final_statut = unique(specie$final_statut),
+                                   in_reef = 1)
       
     } else {
       
-    aca_hab_sp <- correspondance_aca_iucn[, iucn_hab_sp$final_habitats]
-    
-    aca_hab_sp <- apply(aca_hab_sp, 1, sum)
-    
-    aca_hab_sp_1 <- names(aca_hab_sp[aca_hab_sp != 0])
-    val_aca_hab_sp_1 <- rep(1, length(aca_hab_sp_1))
-    data_1 <- data.frame(t(val_aca_hab_sp_1))
-    colnames(data_1) <- aca_hab_sp_1
-    
-    aca_hab_sp_0 = names(aca_hab_sp[aca_hab_sp == 0])
-    val_aca_hab_sp_0 <- rep(0, length(aca_hab_sp_0))
-    data_0 <- data.frame(t(val_aca_hab_sp_0))
-    colnames(data_0) <- aca_hab_sp_0
-    
-    data <- cbind(final_genus_sp, data_1, data_0)
-    data <- data[, c("final_genus_sp", "Small Reef", "Plateau", "Reef Slope", "Sheltered Reef Slope", 
-                     "Reef Crest", "Outer Reef Flat", "Inner Reef Flat", "Back Reef Slope", 
-                     "Deep Lagoon", "Shallow Lagoon", "Patch Reefs", "Terrestrial Reef Flat")]
-    
-    data$Other <- Other
-    
-    data
-    
+      final_valid_habitats <- data.frame(final_genus_sp = unique(specie$final_genus_sp),
+                                   final_statut = unique(specie$final_statut),
+                                   in_reef = 0)
+      
     }
     
-  })
+    
+    if(any(specie$final_habitats %in% out_reef)) {
+      
+      final_valid_habitats$out_reef = 1
+      
+    } else {
+      
+      final_valid_habitats$out_reef = 0
+      
+    }
+    
+    return(final_valid_habitats)
+    
+  })))
   
-  valid_habitats <- do.call(rbind, valid_habitats)
-  valid_habitats <- valid_habitats[order(valid_habitats$final_genus_sp), ]
-
-  return(valid_habitats)
+  
   
 }
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  # correspondance between aca and iucn
+  #valid_habitats <- parallel::mclapply(1:length(valid_habitats), function(i){
+    
+    #message("specie ", i)
+    #i = 627
+    
+    #final_genus_sp <- unique(valid_habitats[[i]]$final_genus_sp)
+    #iucn_hab_sp <- valid_habitats[[i]]
+    
+    #if(length(iucn_hab_sp$final_habitats) == 1){
+      
+     # val_aca_hab_sp <- correspondance_aca_iucn[, iucn_hab_sp$final_habitats]
+      #aca_hab_sp <- rownames(correspondance_aca_iucn)
+      #data_all <- data.frame(t(val_aca_hab_sp))
+      #colnames(data_all) <- aca_hab_sp
+      #data <- cbind(final_genus_sp, data_all)
+      
+      #data$Other <- Other
+      
+      #data
+      
+    #} else {
+      
+    #aca_hab_sp <- correspondance_aca_iucn[, iucn_hab_sp$final_habitats]
+    
+    #aca_hab_sp <- apply(aca_hab_sp, 1, sum)
+    
+    #aca_hab_sp_1 <- names(aca_hab_sp[aca_hab_sp != 0])
+    #val_aca_hab_sp_1 <- rep(1, length(aca_hab_sp_1))
+    #data_1 <- data.frame(t(val_aca_hab_sp_1))
+    #colnames(data_1) <- aca_hab_sp_1
+    
+    #aca_hab_sp_0 = names(aca_hab_sp[aca_hab_sp == 0])
+    #val_aca_hab_sp_0 <- rep(0, length(aca_hab_sp_0))
+    #data_0 <- data.frame(t(val_aca_hab_sp_0))
+    #colnames(data_0) <- aca_hab_sp_0
+    
+    #data <- cbind(final_genus_sp, data_1, data_0)
+    #data <- data[, c("final_genus_sp", "Small Reef", "Plateau", "Reef Slope", "Sheltered Reef Slope", 
+    #                 "Reef Crest", "Outer Reef Flat", "Inner Reef Flat", "Back Reef Slope", 
+    #                 "Deep Lagoon", "Shallow Lagoon", "Patch Reefs", "Terrestrial Reef Flat")]
+    
+    #data$Other <- Other
+    
+    #data
+    
+    #}
+    
+  #})
+  
+  #valid_habitats <- do.call(rbind, valid_habitats)
+  #valid_habitats <- valid_habitats[order(valid_habitats$final_genus_sp), ]
+
+  #return(valid_habitats)
+  
+#}
   
 # ---- CORRESPONDANCE HABITATS STUFF -------------------------------------------
 

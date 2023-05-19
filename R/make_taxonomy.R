@@ -1,5 +1,9 @@
 make_taxonomy <- function(coral_traits_final, habitat_sp, corals_range) {
   
+  #targets::tar_load(coral_traits_final)
+  #targets::tar_load(habitat_sp)
+  #targets::tar_load(corals_range)
+  
   message(cli::rule(line_col = "blue", right = "Making the project WoRMS taxonomy"))
   
   databases <-  list(ctdb = targets::tar_read(coral_traits_final), iucn_habitat = targets::tar_read(habitat_sp),
@@ -70,7 +74,7 @@ make_taxonomy <- function(coral_traits_final, habitat_sp, corals_range) {
   filter_wr <- function(gs) {
     
     message(gs)
-    #gs="Homophyllia hillae"
+    #gs="Turbinaria_patula"
     sci_com <- up_name(gs)
     wmdf <- wr[[gs]]
     

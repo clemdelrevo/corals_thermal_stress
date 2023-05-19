@@ -19,19 +19,10 @@ get_final_taxonomy <- function(taxonomy, valid_ctdb, valid_habitats, valid_coral
   sp_name_habitat <- intermed_taxo_2$final_genus_sp
   sp_habitat_na   <- intermed_taxo[!intermed_taxo$final_genus_sp %in% sp_name_habitat, ]
   
-  sp_habitat_na$`Small Reef`      <- NA
-  sp_habitat_na$Plateau           <- NA
-  sp_habitat_na$`Reef Slope`      <- NA
-  sp_habitat_na$`Sheltered Reef Slope`  <- NA
-  sp_habitat_na$`Reef Crest`      <- NA
-  sp_habitat_na$`Outer Reef Flat` <- NA
-  sp_habitat_na$`Inner Reef Flat` <- NA
-  sp_habitat_na$`Back Reef Slope` <- NA
-  sp_habitat_na$`Deep Lagoon`     <- NA
-  sp_habitat_na$`Shallow Lagoon`  <- NA
-  sp_habitat_na$`Patch Reefs`      <- NA
-  sp_habitat_na$`Terrestrial Reef Flat` <- NA
-  sp_habitat_na$Other             <- NA
+  sp_habitat_na$in_reef      <- NA
+  sp_habitat_na$out_reef     <- NA
+  sp_habitat_na$final_statut <- NA
+
 
   intermed_taxo_2 <- rbind(intermed_taxo_2, sp_habitat_na)
   
