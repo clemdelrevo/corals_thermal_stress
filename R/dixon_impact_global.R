@@ -3,7 +3,8 @@ get_impact_global <- function(analyse_dixon, final_taxonomy){
   #targets::tar_load(analyse_dixon)
   #targets::tar_load(final_taxonomy)
   
-  analyse_dixon        <- analyse_dixon[, !names(analyse_dixon) %in% c("regions", "ECOREGION", "PROVINCE", "REALM", "Lat_Zone")]
+  analyse_dixon        <- sf::st_drop_geometry(analyse_dixon)
+  analyse_dixon        <- analyse_dixon[, !names(analyse_dixon) %in% "regions"]
   analyse_dixon_sp     <- analyse_dixon[, !names(analyse_dixon) %in% c("present_stress", "stress_1.5", "stress_2", "stress_3", "stress_4")]
   sum_area_sp          <- colSums(analyse_dixon_sp)
   sp_nomatch           <- names(sum_area_sp)[sum_area_sp == 0]

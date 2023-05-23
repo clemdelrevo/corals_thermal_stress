@@ -5,7 +5,7 @@ tar_option_set(format = "qs")
 
 # functions and options
 tar_source()
-options(mc.cores = 7)
+options(mc.cores = 30)
 
 # sf options
 sf::sf_use_s2(FALSE)
@@ -49,11 +49,12 @@ list(
  #,tar_target(global_specific_richness_map, get_specific_richness_map(final_taxonomy, coral_reef_grid))
  
  ## get analyses of dixon's data ---
- ,tar_target(analyse_dixon, get_analyse_dixon(thermal_dixon, final_taxonomy, ecoregions, reef_at_risk))
+ ,tar_target(analyse_dixon, get_analyse_dixon(thermal_dixon, final_taxonomy, ecoregions))
  
  ## get impact of thermal stress in dixon data ---
  ,tar_target(final_impacts_global, get_impact_global(analyse_dixon, final_taxonomy))
  ### at different scale ---
+ ,tar_target(final_impacts_zee, get_impact_regions(analyse_dixon, final_taxonomy, ecoregions, reef_at_risk, scale_impact = 0))
  ,tar_target(final_impacts_ecoregion, get_impact_regions(analyse_dixon, final_taxonomy, ecoregions, scale_impact = 1))
  ,tar_target(final_impacts_region, get_impact_regions(analyse_dixon, final_taxonomy, ecoregions, scale_impact = 2))
  ,tar_target(final_impacts_province, get_impact_regions(analyse_dixon, final_taxonomy, ecoregions, scale_impact = 3))
@@ -67,5 +68,8 @@ list(
  ## get plot ---
  ,tar_target(plot_stress_range, get_stress_range(final_impacts_global))
  
+ ## get map of impacts ---
+ ,tar_target(ecoregion_map, impact_ecoregion_map(final_impacts_ecoregion, ecoregions))
+ ,tar_target(province_map, impacts_province_map(final_impacts_province, ecoregions))
 
 )
