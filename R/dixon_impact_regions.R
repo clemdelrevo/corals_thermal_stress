@@ -92,6 +92,8 @@ get_impact_regions <- function(analyse_dixon, final_taxonomy, ecoregions, reef_a
       select_sp    <- region_sub[, names(region_sub) %in% c(col_name, sp)]
       sp_name      <- sp
       sp_family    <- final_taxonomy$final_family[final_taxonomy$final_genus_sp %in% sp_name]
+      sp_inreef    <- final_taxonomy$in_reef[final_taxonomy$final_genus_sp %in% sp_name]
+      sp_outreef   <- final_taxonomy$out_reef[final_taxonomy$final_genus_sp %in% sp_name]
       sp_range     <- select_sp[select_sp[, names(select_sp) %in% sp] == 1, ]
       if(nrow(sp_range) == 0) {return(NULL)}
       region_name  <- region
@@ -134,6 +136,8 @@ get_impact_regions <- function(analyse_dixon, final_taxonomy, ecoregions, reef_a
        sp_area_impacts$range     <- rep(area_range, nrow(sp_area_impacts))
        sp_area_impacts$specie    <- rep(sp_name, nrow(sp_area_impacts))
        sp_area_impacts$family    <- rep(sp_family, nrow(sp_area_impacts))
+       sp_area_impacts$in_reef   <- rep(sp_inreef, nrow(sp_area_impacts))
+       sp_area_impacts$out_reef  <- rep(sp_outreef, nrow(sp_area_impacts))
        
        if(any(colnames(region_sub) %in% "COUNTRY")) {
          
@@ -152,8 +156,8 @@ get_impact_regions <- function(analyse_dixon, final_taxonomy, ecoregions, reef_a
          
        } else {
          
-       sp_area_impacts <- sp_area_impacts[, c("region", "specie", "family", "range", "area", "present_stress", 
-                                              "stress_1.5", "stress_2", "stress_3", "stress_4")]
+       sp_area_impacts <- sp_area_impacts[, c("region", "specie", "family", "range", "area", "in_reef", "out_reef",
+                                              "present_stress", "stress_1.5", "stress_2", "stress_3", "stress_4")]
        }
       
        return(sp_area_impacts)

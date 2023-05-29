@@ -20,16 +20,17 @@ wrangle_thermal_dixon <- function(thermal_dixon_csv){
   
 wrangle_thermal_kalmus <- function(thermal_kalmus_nc) {
 
-    
+  #targets::tar_load(thermal_kalmus_nc)  
+  
     splits <- strsplit(basename(thermal_kalmus_nc), "_")
     th_data <- data.frame(ssp = sapply(splits, "[", 5),
                           thermal_departure  = sapply(splits, "[", 6),
                           threshold = sapply(strsplit(sapply(splits, "[", 7), "\\."), "[", 1),
-                          file = thermal_stress_data)
+                          file = thermal_kalmus_nc)
     th_data$col_name <- apply(th_data[, c("ssp", "thermal_departure", "threshold")], 1, paste, collapse = "_")
     
     #get coords
-    d <- stars::read_ncdf(thermal_stress_data[1])
+    d <- stars::read_ncdf(thermal_kalmus_nc[1])
     
     thermal_stress <- data.frame(x  = d$lon, y = d$lat)
     

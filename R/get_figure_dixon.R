@@ -8,31 +8,36 @@ get_stress_range <- function(final_impacts_global) {
   median_range  <- median(final_impacts_exposed$range)
   median_impact <- apply(final_impacts_exposed[, c("present_stress", "stress_1.5", "stress_2", "stress_3")], 2, median)
   
-  plot_range <- function(y, median_impact) {
+  plot_range <- function(y, median_impact, title) {
     
     ggplot2::ggplot(final_impacts_exposed, ggplot2::aes(x = range, y = .data[[y]], color = family))+
     ggplot2::geom_point()+
-    ggplot2::theme(legend.position = "none")+
     ggplot2::geom_hline(yintercept = median_impact)+
     ggplot2::geom_vline(xintercept = median_range)+
     ggplot2::xlab(bquote("aire de distribution ("*km^2*")"))+
-    ggplot2::ylab("pourcentage d'exposition au stress thermique")+
-    ggplot2::ylim(0, 100)
+    ggplot2::ylab("% d'exposition du range au stress thermique")+
+    ggplot2::ylim(0, 100)+
+    ggplot2::ggtitle(title)+
+    ggplot2::theme(legend.position = "none", plot.title = ggplot2::element_text(face = "bold", hjust = 0.5))+
+    ggplot2::geom_smooth(method = "loess", ggplot2::aes(group = 1), color = "black")+
+    ggplot2::scale_color_manual(values = c("#FFFF00", "#00FF00", "#FF3300", "#CC33FF", "#00CCFF", "#FF00CC",
+                                           "#993300", "#0000FF", "#000033", "#FF99FF", "#009966", "#FF9933",
+                                           "#CC0033", "#666666", "#00CC99", "#003300", "#6633CC", "#FF0099",
+                                           "#0066FF", "#660066", "#66CC00", "#CCCC00", "#3300CC", "#FF6699",
+                                           "#3399CC", "#FF0000", "#FF9966", "#666600", "#CCFFCC"))
     
   }
   
-  present_stress <- plot_range(y = "present_stress", median_impact = median_impact[1])
-  stress_1.5     <- plot_range(y = "stress_1.5", median_impact = median_impact[2])
-  stress_2       <- plot_range(y = "stress_2", median_impact = median_impact[3])
-  stress_3       <- plot_range(y = "stress_3", median_impact = median_impact[4])
+  present_stress <- plot_range(y = "present_stress", median_impact = median_impact[1], "Present stress")
+  stress_1.5     <- plot_range(y = "stress_1.5", median_impact = median_impact[2], "1.5°C")
+  stress_2       <- plot_range(y = "stress_2", median_impact = median_impact[3], "2°C")
+  stress_3       <- plot_range(y = "stress_3", median_impact = median_impact[4], "3°C")
   
-  plot_stress_range <- cowplot::ggdraw(xlim = c(0, 40), ylim = c(0, 40))+
+  cowplot::ggdraw(xlim = c(0, 40), ylim = c(0, 40))+
     cowplot::draw_plot(present_stress, x = 0, y = 20, width = 20, height = 20)+
     cowplot::draw_plot(stress_1.5, x = 20, y = 20, width = 20, height = 20)+
     cowplot::draw_plot(stress_2, x = 0, y = 0, width = 20, height = 20)+
     cowplot::draw_plot(stress_3, x = 20, y = 0, width = 20, height = 20)
-  
-  return(plot_stress_range)
   
 }
 
@@ -63,15 +68,14 @@ boxplot_habitat <- function(final_impacts_global) {
 
 barplot_zee <- function(final_impacts_zee) {
   
-  targets::tar_load(final_impacts_zee)
+  #targets::tar_load(final_impacts_zee)
   
   final_impacts_zee <- final_impacts_zee[final_impacts_zee$area == "area_exposed", ]
-  
-  final_impacts_zee$note <- trimws(final_impacts_zee$note)
-  
   final_impacts_zee <- final_impacts_zee[!grepl("Uninhabited or sparsely inhabited with reefs", final_impacts_zee$note), ]
   
-  impact_zee <- lapply(levels(as.factor(final_impacts_zee$region)), function(zee){
+  
+  
+  impact_zee <- data.frame(do.call(rbind, lapply(levels(as.factor(final_impacts_zee$region)), function(zee){
     
     #zee = "AMERICAN SAMOA"
     message(zee)
@@ -96,9 +100,7 @@ barplot_zee <- function(final_impacts_zee) {
     
     return(impact_zee)
     
-  })
-  
-  impact_zee <- do.call(rbind, impact_zee)
+  })))
   
   mean_dependance <- tapply(impact_zee$impact1.5_50, impact_zee$dependance, mean)
   st_dependance <- tapply(impact_zee$impact1.5_50, impact_zee$dependance, plotrix::std.error)
