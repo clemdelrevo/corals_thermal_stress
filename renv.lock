@@ -790,6 +790,14 @@
         "rlang"
       ]
     },
+    "gtools": {
+      "Package": "gtools",
+      "Version": "3.9.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "88bb96eaf7140cdf29e374ef74182220",
+      "Requirements": []
+    },
     "highr": {
       "Package": "highr",
       "Version": "0.10",

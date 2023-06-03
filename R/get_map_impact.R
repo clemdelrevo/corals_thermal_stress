@@ -12,17 +12,12 @@ impact_ecoregion_map <- function(final_impacts_ecoregion, ecoregions){
     ecoregion <- exposed_ecoregion[exposed_ecoregion$region == ecoregion, ]
     
     nb_sp     <- nrow(ecoregion)
-    sp_1.5_50 <- nrow(ecoregion[ecoregion$stress_1.5 > 50, ])
     sp_1.5_90 <- nrow(ecoregion[ecoregion$stress_1.5 > 90, ])
-    impact1.5_50 <- (sp_1.5_50 * 100) / nb_sp
+
     impact1.5_90 <- (sp_1.5_90 * 100) / nb_sp
-    
-    sp_2_50 <- nrow(ecoregion[ecoregion$stress_2 > 50, ])
-    sp_2_90 <- nrow(ecoregion[ecoregion$stress_2 > 90, ])
-    impact2_50 <- (sp_2_50 * 100) / nb_sp
-    impact2_90 <- (sp_2_90 * 100) / nb_sp
-    
-    impact_ecoregion <- data.frame(region = unique(ecoregion$region),impact1.5_50, impact1.5_90, impact2_50, impact2_90)
+    mean_1.5  <-  mean(ecoregion$stress_1.5)
+
+    impact_ecoregion <- data.frame(region = unique(ecoregion$region), impact1.5_90, mean_1.5)
     
     return(impact_ecoregion)
     
@@ -39,33 +34,28 @@ impact_ecoregion_map <- function(final_impacts_ecoregion, ecoregions){
   world <- rnaturalearth::ne_countries(scale='medium',returnclass = 'sf')
   world <- sf::st_transform(world, crs = "EPSG:4326")
   
-  map_impact <- function(fill, ..., legend_size) {
+  map_impact <- function(fill, ..., legend_size, labs) {
     
     ggplot2::ggplot()+
       ggplot2::geom_sf(data = impact_ecoregion, ggplot2::aes(fill = .data[[fill]]))+
-      ggplot2::geom_sf(data = world, fill = "#CC9966", color = "#CC9966")+
+      ggplot2::geom_sf(data = world, fill = "lightgrey", color = "lightgrey")+
       ggplot2::scale_fill_gradientn(colours = c("#33CCFF", "#FFFF00", "#FF0000"))+
+      ggplot2::theme_classic()+
       ggplot2::ggtitle(...)+
       ggplot2::coord_sf(xlim = c(-180, 180), ylim = c(-45, 45))+
-      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5), 
-                     legend.position = "bottom",
-                     legend.text = ggplot2::element_text(size = legend_size))+
-      ggplot2::labs(fill = "% d'espèces")
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"), 
+                     legend.text = ggplot2::element_text(size = legend_size),
+                     panel.border = ggplot2::element_rect(color = "black", fill = NA, size = 1))+
+      ggplot2::labs(fill = labs)
     
   }
   
-  map1.5_50 <- map_impact(fill = "impact1.5_50", "> 50% de l'occurence", legend_size = 8)
-  map1.5_90 <- map_impact(fill = "impact1.5_90", "> 90% de l'occurence", legend_size = 8)
-  map2_50   <- map_impact(fill = "impact2_50", "> 50% de l'occurence", legend_size = 6)
-  map2_90   <- map_impact(fill = "impact2_90", "> 90% de l'occurence", legend_size = 8)
+  map1.5_90 <- map_impact(fill = "impact1.5_90", "> 90% de l'occurence", legend_size = 8, labs = "% d'espèces")
+  map_mean_impact <- map_impact(fill = "mean_1.5", "% moyen d'exposition", legend_size = 8, labs = "% d'exposition")
   
-  cowplot::ggdraw(xlim = c(0, 40), ylim = c(0, 41))+
-    cowplot::draw_plot(map1.5_50, x = 0, y = 20, width = 20, height = 20)+
-    cowplot::draw_plot(map1.5_90, x = 0, y = 0, width = 20, height = 20)+
-    cowplot::draw_plot(map2_50, x = 20, y = 20, width = 20, height = 20)+
-    cowplot::draw_plot(map2_90, x = 20, y = 0, width = 20, height = 20)+
-    cowplot::draw_plot_label("1.5°C", x = 8, y = 41)+
-    cowplot::draw_plot_label("2°C", x = 28, y = 41)
+  ecoregion_map <- cowplot::plot_grid(map_mean_impact, map1.5_90, ncol = 1, align = "hv")
+
+  return(list(impact_ecoregion, ecoregion_map))
   
 }
 
@@ -83,17 +73,11 @@ impacts_province_map <- function(final_impacts_province, ecoregions) {
     province <- exposed_province[exposed_province$region == province, ]
     
     nb_sp     <- nrow(province)
-    sp_1.5_50 <- nrow(province[province$stress_1.5 > 50, ])
     sp_1.5_90 <- nrow(province[province$stress_1.5 > 90, ])
-    impact1.5_50 <- (sp_1.5_50 * 100) / nb_sp
     impact1.5_90 <- (sp_1.5_90 * 100) / nb_sp
+    mean_1.5  <- mean(province$stress_1.5)
     
-    sp_2_50 <- nrow(province[province$stress_2 > 50, ])
-    sp_2_90 <- nrow(province[province$stress_2 > 90, ])
-    impact2_50 <- (sp_2_50 * 100) / nb_sp
-    impact2_90 <- (sp_2_90 * 100) / nb_sp
-    
-    impact_province <- data.frame(region = unique(province$region), impact1.5_50, impact1.5_90, impact2_50, impact2_90)
+    impact_province <- data.frame(region = unique(province$region), impact1.5_90, mean_1.5)
     
     return(impact_province)
     
@@ -123,38 +107,33 @@ impacts_province_map <- function(final_impacts_province, ecoregions) {
   world <- rnaturalearth::ne_countries(scale='medium',returnclass = 'sf')
   world <- sf::st_transform(world, crs = "EPSG:4326")
   
-  map_impact <- function(fill, ..., legend_size) {
+  map_impact <- function(fill, ..., legend_size, labs) {
     
     ggplot2::ggplot()+
       ggplot2::geom_sf(data = impact_province, ggplot2::aes(fill = .data[[fill]]))+
-      ggplot2::geom_sf(data = world, fill = "#CC9966", color = "#CC9966")+
+      ggplot2::geom_sf(data = world, fill = "lightgrey", color = "lightgrey")+
       ggplot2::scale_fill_gradientn(colours = c("#33CCFF", "#FFFF00", "#FF0000"))+
+      ggplot2::theme_classic()+
       ggplot2::ggtitle(...)+
       ggplot2::coord_sf(xlim = c(-180, 180), ylim = c(-45, 45))+
-      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5), 
-                     legend.position = "bottom",
-                     legend.text = ggplot2::element_text(size = legend_size))+
-      ggplot2::labs(fill = "% d'espèces")
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"), 
+                     legend.text = ggplot2::element_text(size = legend_size),
+                     panel.border = ggplot2::element_rect(color = "black", fill = NA, size = 1))+
+      ggplot2::labs(fill = labs)
     
   }
   
-  map1.5_50 <- map_impact(fill = "impact1.5_50", "> 50% de l'occurence", legend_size = 8)
-  map1.5_90 <- map_impact(fill = "impact1.5_90", "> 90% de l'occurence", legend_size = 8)
-  map2_50   <- map_impact(fill = "impact2_50", "> 50% de l'occurence", legend_size = 6)
-  map2_90   <- map_impact(fill = "impact2_90", "> 90% de l'occurence", legend_size = 8)
+  map1.5_90 <- map_impact(fill = "impact1.5_90", "> 90% de l'occurence", legend_size = 8, labs = "% d'espèces")
+  map_mean_impact <- map_impact(fill = "mean_1.5", "% moyen d'exposition", legend_size = 8, labs = "% d'exposition")
   
-  cowplot::ggdraw(xlim = c(0, 40), ylim = c(0, 41))+
-    cowplot::draw_plot(map1.5_50, x = 0, y = 20, width = 20, height = 20)+
-    cowplot::draw_plot(map1.5_90, x = 0, y = 0, width = 20, height = 20)+
-    cowplot::draw_plot(map2_50, x = 20, y = 20, width = 20, height = 20)+
-    cowplot::draw_plot(map2_90, x = 20, y = 0, width = 20, height = 20)+
-    cowplot::draw_plot_label("1.5°C", x = 8, y = 41)+
-    cowplot::draw_plot_label("2°C", x = 28, y = 41)
+  province_map <- cowplot::plot_grid(map_mean_impact, map1.5_90, ncol = 1, align = "hv")
+  
+  return(list(impact_province, province_map))
   
 }
 
 
-impacts_inreef_map <- function(final_impacts_ecoregion, ecoregions) {
+richness_map <- function(final_impacts_ecoregion, ecoregions) {
   
   #targets::tar_load(final_impacts_ecoregion)
   #targets::tar_load(ecoregions)
@@ -175,44 +154,16 @@ impacts_inreef_map <- function(final_impacts_ecoregion, ecoregions) {
   
   richness <- ggplot2::ggplot()+
     ggplot2::geom_sf(data = sp_ecoregion, ggplot2::aes(fill = nb_sp))+
-    ggplot2::geom_sf(data = world, fill = "#CC9966", color = "#CC9966")+
+    ggplot2::geom_sf(data = world, fill = "lightgrey", color = "lightgrey")+
+    ggplot2::theme_classic()+
     ggplot2::scale_fill_viridis_b()+
     ggplot2::coord_sf(xlim = c(-180, 180), ylim = c(-45, 45))+
-    ggplot2::labs(fill = "RS")
-
-  sp_in_reef <- final_impacts_ecoregion[!is.na(final_impacts_ecoregion$in_reef), ]
-  sp_in_reef <- sp_in_reef[sp_in_reef$in_reef == 1,]
-  sp_in_reef <- sp_in_reef[sp_in_reef$out_reef == 0, ]
-  nb_in_reef <- tapply(sp_in_reef$specie, sp_in_reef$region, length)
-
-  prop_sp <- cbind(sp_ecoregion, nb_in_reef)
-  prop_sp$prop_in_reef <- (prop_sp$nb_in_reef * 100) / prop_sp$nb_sp
+    ggplot2::labs(fill = "RS")+
+    ggplot2::theme(panel.background = ggplot2::element_rect(color = "black", linewidth = 0.5))
   
-  prop_in_reef <- ggplot2::ggplot()+
-    ggplot2::geom_sf(data = prop_sp, ggplot2::aes(fill = prop_in_reef))+
-    ggplot2::geom_sf(data = world, fill = "#CC9966", color = "#CC9966")+
-    ggplot2::scale_fill_viridis_b()+
-    ggplot2::coord_sf(xlim = c(-180, 180), ylim = c(-45, 45))+
-    ggplot2::labs(fill = "% d'espèces")
+  ggplot2::ggsave("outputs/figure/richness_map.png", plot = richness, dpi = 500, width = 30, height = 20, units = "cm")
   
-  sp_in_reef1.5 <- sp_in_reef[sp_in_reef$stress_1.5 > 50, ]
-  in_reef1.5    <- tapply(sp_in_reef1.5$specie, sp_in_reef1.5$region, length)
-  
-  prop_sp <- prop_sp[prop_sp$ecoregion %in% names(in_reef1.5), ]
-  prop_sp <- cbind(prop_sp, in_reef1.5)
-  prop_sp$prop_1.5 <- (prop_sp$in_reef1.5 * 100) / prop_sp$nb_in_reef
-  
-  prop1.5 <- ggplot2::ggplot()+
-    ggplot2::geom_sf(data = prop_sp, ggplot2::aes(fill = prop_1.5))+
-    ggplot2::geom_sf(data = world, fill = "#CC9966", color = "#CC9966")+
-    ggplot2::scale_fill_viridis_b()+
-    ggplot2::coord_sf(xlim = c(-180, 180), ylim = c(-45, 45))+
-    ggplot2::labs(fill = "% d'espèces")
-  
-  cowplot::ggdraw(xlim = c(0,20), ylim = c(0,30))+
-    cowplot::draw_plot(richness, x = 0, y = 20, width = 20, height = 10)+
-    cowplot::draw_plot(prop_in_reef, x = 0.2, y = 10, width = 20, height = 10)+
-    cowplot::draw_plot(prop1.5, x = 0.2, y = 0, width = 20, height = 10)
+  richness
   
 }
 
@@ -230,17 +181,11 @@ impact_realm_map <- function(final_impacts_realm, ecoregions) {
     realm <- exposed_realm[exposed_realm$region == realm, ]
     
     nb_sp     <- nrow(realm)
-    sp_1.5_50 <- nrow(realm[realm$stress_1.5 > 50, ])
     sp_1.5_90 <- nrow(realm[realm$stress_1.5 > 90, ])
-    impact1.5_50 <- (sp_1.5_50 * 100) / nb_sp
     impact1.5_90 <- (sp_1.5_90 * 100) / nb_sp
+    mean_1.5  <- mean(realm$stress_1.5)
     
-    sp_2_50 <- nrow(realm[realm$stress_2 > 50, ])
-    sp_2_90 <- nrow(realm[realm$stress_2 > 90, ])
-    impact2_50 <- (sp_2_50 * 100) / nb_sp
-    impact2_90 <- (sp_2_90 * 100) / nb_sp
-    
-    impact_realm <- data.frame(region = unique(realm$region), impact1.5_50, impact1.5_90, impact2_50, impact2_90)
+    impact_realm <- data.frame(region = unique(realm$region), impact1.5_90, mean_1.5)
     
     return(impact_realm)
     
@@ -269,34 +214,27 @@ impact_realm_map <- function(final_impacts_realm, ecoregions) {
   world <- rnaturalearth::ne_countries(scale='medium',returnclass = 'sf')
   world <- sf::st_transform(world, crs = "EPSG:4326")
   
-  map_impact <- function(fill, ..., legend_size) {
+  map_impact <- function(fill, ..., legend_size, labs) {
     
     ggplot2::ggplot()+
       ggplot2::geom_sf(data = impact_realm, ggplot2::aes(fill = .data[[fill]]))+
-      ggplot2::geom_sf(data = world)+
+      ggplot2::geom_sf(data = world, fill = "lightgrey", color = "lightgrey")+
       ggplot2::scale_fill_gradientn(colours = c("#33CCFF", "#FFFF00", "#FF0000"))+
+      ggplot2::theme_classic()+
       ggplot2::ggtitle(...)+
       ggplot2::coord_sf(xlim = c(-180, 180), ylim = c(-45, 45))+
-      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5), 
-                     legend.position = "bottom",
-                     legend.text = ggplot2::element_text(size = legend_size))+
-      ggplot2::labs(fill = "% d'espèces")
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"), 
+                     legend.text = ggplot2::element_text(size = legend_size),
+                     panel.border = ggplot2::element_rect(color = "black", fill = NA, size = 1))+
+      ggplot2::labs(fill = labs)
     
   }
   
-  map1.5_50 <- map_impact(fill = "impact1.5_50", "> 50% de l'occurence", legend_size = 8)
-  map1.5_90 <- map_impact(fill = "impact1.5_90", "> 90% de l'occurence", legend_size = 8)
-  map2_50   <- map_impact(fill = "impact2_50", "> 50% de l'occurence", legend_size = 6)
-  map2_90   <- map_impact(fill = "impact2_90", "> 90% de l'occurence", legend_size = 8)
+  map1.5_90 <- map_impact(fill = "impact1.5_90", "> 90% de l'occurence", legend_size = 8, labs = "% d'espèces")
+  map_mean_impact <- map_impact(fill = "mean_1.5", "% moyen d'exposition", legend_size = 8, labs = "% d'exposition")
   
-  map_impact_realm <- cowplot::ggdraw(xlim = c(0, 40), ylim = c(0, 41))+
-    cowplot::draw_plot(map1.5_50, x = 0, y = 20, width = 20, height = 20)+
-    cowplot::draw_plot(map1.5_90, x = 0, y = 0, width = 20, height = 20)+
-    cowplot::draw_plot(map2_50, x = 20, y = 20, width = 20, height = 20)+
-    cowplot::draw_plot(map2_90, x = 20, y = 0, width = 20, height = 20)+
-    cowplot::draw_plot_label("1.5°C", x = 8, y = 41)+
-    cowplot::draw_plot_label("2°C", x = 28, y = 41)
+  realm_map <- cowplot::plot_grid(map_mean_impact, map1.5_90, ncol = 1, align = "hv")
   
-  return(map_impact_realm)
+  return(list(impact_realm, realm_map))
   
 }

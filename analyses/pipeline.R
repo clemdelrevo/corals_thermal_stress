@@ -5,7 +5,7 @@ tar_option_set(format = "qs")
 
 # functions and options
 tar_source()
-options(mc.cores = 8)
+options(mc.cores = 7)
 
 # sf options
 sf::sf_use_s2(FALSE)
@@ -45,16 +45,19 @@ list(
  ,tar_target(final_taxonomy, get_final_taxonomy(taxonomy, valid_ctdb, valid_habitats, valid_corals_range))
  
  ## get grid
- #,tar_target(millenium_grid, get_millenium_grid(millenium_reef, cellsize = 0.06981317))
+ ,tar_target(millenium_grid_4, get_millenium_grid(millenium_reef, cellsize = 0.06981317))
+ ,tar_target(millenium_grid_100, get_millenium_grid(millenium_reef, cellsize = 1))
  
  ## get specific richness map ---
  #,tar_target(global_specific_richness_map, get_specific_richness_map(final_taxonomy, coral_reef_grid))
  
  ## get analyses of dixon's data ---
  ,tar_target(analyse_dixon, get_analyse_dixon(thermal_dixon, final_taxonomy, ecoregions))
+ ,tar_target(dixon_100km, get_100km_dixon(analyse_dixon, millenium_grid_100))
  
  ## get impact of thermal stress in dixon data ---
  ,tar_target(final_impacts_global, get_impact_global(analyse_dixon, final_taxonomy))
+ ,tar_target(final_impacts_trait, get_impacts_trait(final_impacts_global))
  ### at different scale ---
  ,tar_target(final_impacts_zee, get_impact_regions(analyse_dixon, final_taxonomy, ecoregions, reef_at_risk, scale_impact = 0))
  ,tar_target(final_impacts_ecoregion, get_impact_regions(analyse_dixon, final_taxonomy, ecoregions, scale_impact = 1))
@@ -65,9 +68,12 @@ list(
  ## get dixon boxplot threshold ---
  ,tar_target(boxplot_threshold_family, get_boxplot_impact_family(final_impacts_global))
  ,tar_target(boxplot_threshold_statut, get_boxplot_impact_statut(final_impacts_global))
- ,tar_target(boxplot_threshold_region, get_boxplot_impacts_region(final_impacts_region, final_impacts_global))
+ #,tar_target(boxplot_threshold_region, get_boxplot_impact_region(final_impacts_region, final_impacts_global))
+ ,tar_target(boxplot_threshold_habitat, get_boxplot_impact_habitat(final_impacts_global))
+ ,tar_target(boxplot_threshold_trait, get_boxplot_impact_trait(final_impacts_trait))
  
  ## get dixon plot ---
+ ,tar_target(histo_sp, get_sp_histo(final_impacts_global))
  ,tar_target(plot_stress_range, get_stress_range(final_impacts_global))
  
  ## get dixon map of impacts ---
@@ -75,6 +81,7 @@ list(
  ,tar_target(province_map, impacts_province_map(final_impacts_province, ecoregions))
  ,tar_target(realm_map, impact_realm_map(final_impacts_realm, ecoregions))
  ,tar_target(inreef_map, impacts_inreef_map(final_impacts_ecoregion, ecoregions))
+ ,tar_target(global_impact_100km, get_global_impact_100km(dixon_100km, millenium_grid_100))
 
  ## analyse of kalmus data ---
  ,tar_target(analyse_kalmus, get_analyse_kalmus(thermal_kalmus, final_taxonomy))
@@ -84,5 +91,8 @@ list(
  
  ## get kalmus plot
  ,tar_target(plot_years_threshold, get_years_threshold(kalmus_impacts_family))
+ 
+ ## get biodiveristy stat ---
+ ,tar_target(biodiv_stat, get_biodi_stat(ecoregion_map, final_impacts_ecoregion, final_taxonomy))
  
 )

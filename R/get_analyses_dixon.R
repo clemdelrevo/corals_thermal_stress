@@ -1,3 +1,5 @@
+# Get presence_absence of corals species in each point of dixon's projection
+
 get_analyse_dixon <- function(thermal_dixon, final_taxonomy, ecoregions) {
   
   #targets::tar_load(final_taxonomy)
@@ -7,6 +9,7 @@ get_analyse_dixon <- function(thermal_dixon, final_taxonomy, ecoregions) {
   final_taxonomy_empty <- sf::st_is_empty(final_taxonomy)
   final_taxonomy       <- final_taxonomy[!final_taxonomy_empty, ]
 
+  # get geometry of corals range
   geoms <- sf::st_geometry(final_taxonomy)
   empty <- sf::st_is_empty(geoms)
   geoms <- geoms[!empty]

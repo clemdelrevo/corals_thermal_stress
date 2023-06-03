@@ -1,3 +1,6 @@
+# This function get percentage of distribution area of each coral specie that is refuge
+# intermediaire or exposed thermal stress
+
 get_impact_global <- function(analyse_dixon, final_taxonomy){
 
   #targets::tar_load(analyse_dixon)
