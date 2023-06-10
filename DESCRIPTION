@@ -32,11 +32,13 @@ Imports:
   rnaturalearthdata,
   rredlist,
   rstatix,
+  sars,
   sf,
   stars,
   targets,
   tidyr,
   usethis,
+  viridis,
   visNetwork,
   worrms
 

@@ -162,25 +162,3 @@ wrangle_coral_traits <- function(coral_traits){
   return(coral_traits_final)
   
 }
-
-wrangle_correspondance_aca_iucn <- function(correspondance_aca_iucn_csv){
-  
-  # read data
-  read.csv2(correspondance_aca_iucn_csv,
-            check.names = FALSE,
-            row.names = 1)
-  
-}
-
-wrangle_reef_at_risk <- function(reef_at_risk_shp) {
-  
-  #targets::tar_load(reef_at_risk_shp)
-  
-  reef_at_risk <- sf::read_sf(reef_at_risk_shp)
-  reef_at_risk <- sf::st_transform(reef_at_risk, 4326)
-  reef_at_risk <- sf::st_wrap_dateline(reef_at_risk)
-  reef_at_risk <- sf::st_make_valid(reef_at_risk)
-  
-  return(reef_at_risk)
-  
-}

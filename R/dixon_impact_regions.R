@@ -1,30 +1,13 @@
-get_impact_regions <- function(analyse_dixon, final_taxonomy, ecoregions, reef_at_risk, scale_impact){
+# This function get percentage of distribution area of each coral specie at 
+# different biogeographical scale that is refuge, intermediaire 
+# or exposed thermal stress
+
+get_impact_regions <- function(analyse_dixon, final_taxonomy, ecoregions, scale_impact){
   
   #targets::tar_load(analyse_dixon)
   #targets::tar_load(final_taxonomy)
   #targets::tar_load(ecoregions)
-  #targets::tar_load(reef_at_risk)
   
-  if(scale_impact == 0) {
-    
-    analyse_dixon <- parallel::mclapply(levels(as.factor(reef_at_risk$COUNTRY)), function(country) {
-      
-      #country = "VIETNAM"
-      message(country)
-      country      <- reef_at_risk[reef_at_risk$COUNTRY == country, ]
-      intersection <- sf::st_intersection(analyse_dixon, country)
-      if(nrow(intersection) == 0) {return(NULL)}
-      
-      return(intersection)
-      
-    })
-    
-    analyse_dixon <- do.call(rbind, analyse_dixon)
-    scale = analyse_dixon$COUNTRY
-    
-  }
-  
-  if(scale_impact == 1 | scale_impact == 2 | scale_impact == 3 | scale_impact == 4) {
   
   analyse_dixon <- parallel::mclapply(levels(as.factor(ecoregions$ECOREGION)), function(region){
     
@@ -39,21 +22,12 @@ get_impact_regions <- function(analyse_dixon, final_taxonomy, ecoregions, reef_a
   })
   
   analyse_dixon <- do.call(rbind, analyse_dixon)
-  
-  }
-  
   analyse_dixon <- sf::st_drop_geometry(analyse_dixon)
   
   if(scale_impact == 1) {scale = analyse_dixon$ECOREGION}
   if(scale_impact == 2) {scale = analyse_dixon$regions}
   if(scale_impact == 3) {scale = analyse_dixon$PROVINCE}
   if(scale_impact == 4) {scale = analyse_dixon$REALM}
-  
-  if(scale_impact == 0) {
-    
-    col_name <- c("regions", "present_stress", "stress_1.5", "stress_2", "stress_3", "stress_4",
-                  "COUNTRY", "Alt_Name", "R_Dep_Indx", "R_Dep_Cat", "Adapt_Indx", "Adapt_Cat", "Vuln_Indx", "Vuln_Cat", "Notes")
-    }
   
   if(scale_impact == 1 | scale_impact == 2 | scale_impact == 3 | scale_impact == 4) {
     col_name <- c("regions", "present_stress", "stress_1.5", "stress_2", "stress_3", "stress_4",
@@ -68,12 +42,7 @@ get_impact_regions <- function(analyse_dixon, final_taxonomy, ecoregions, reef_a
   sum_area_sp          <- colSums(analyse_dixon_sp)
   sp_nomatch           <- names(sum_area_sp)[sum_area_sp == 0]
   analyse_dixon        <- analyse_dixon[, !names(analyse_dixon) %in% sp_nomatch]
-  
-  if(scale_impact == 0) {
-    sp_name       <- paste(names(analyse_dixon[, !names(analyse_dixon) %in% col_name]))
-    analyse_dixon <- analyse_dixon[, c(col_name, sp_name)]
-    }
-  
+
   if(scale_impact == 1 | scale_impact == 2 | scale_impact == 3 | scale_impact == 4) {
      sp_name       <- paste(names(analyse_dixon[, !names(analyse_dixon) %in% col_name]))
      analyse_dixon <- analyse_dixon[, c(col_name, sp_name)]

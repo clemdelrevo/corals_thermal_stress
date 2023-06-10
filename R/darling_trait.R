@@ -1,4 +1,6 @@
-get_impacts_trait <- function(final_impacts_global) {
+# Recover specie life strategy trait of Darling et al. (2019)
+
+get_darling_trait <- function(final_impacts_global) {
   
   competitive <- c("Acropora abrolhosensis", "Acropora abrotanoides", "Acropora aculeus", "Acropora acuminata", "Acropora anthocercis", "Acropora aspera", "Acropora austera", "Acropora azurea", "Acropora carduus", "Acropora caroliniana", "Acropora cerealis", "Acropora chesterfieldensis", "Acropora clathrata", "Acropora corymbose,
   Acropora cytherea", "Acropora digitate", "Acropora digitifera", "Acropora divaricata", "Acropora donei", "Acropora echinata", "Acropora elseyi", "Acropora eurystoma", "Acropora florida", "Acropora gemmifera", "Acropora glauca",

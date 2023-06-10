@@ -73,7 +73,7 @@ get_boxplot_impact_family <- function(final_impacts_global) {
                    axis.title.x = ggplot2::element_text(size = 13, face = "bold"),
                    axis.text.y = ggplot2::element_text(size = 11, face = "bold"),
                    plot.subtitle = ggplot2::element_text(size = 9))+
-    ggplot2::labs(subtitle = paste0("Kruskal-Wallis (1989-2019), Khi2 = ", round(test$present_stress$non_param_test$statistic), ", df = ", test$present_stress$non_param_test$parameter, ", p-value = ", round(test$present_stress$non_param_test$p.value, 4),
+    ggplot2::labs(subtitle = paste0("Kruskal-Wallis (1986-2019), Khi2 = ", round(test$present_stress$non_param_test$statistic), ", df = ", test$present_stress$non_param_test$parameter, ", p-value = ", round(test$present_stress$non_param_test$p.value, 4),
                                     " ; Kruskal-Wallis (+1.5°C), Khi2 = ", round(test$stress_1.5$non_param_test$statistic), ", df = ", test$stress_1.5$non_param_test$parameter, ", p-value = ", sprintf("%.4e", test$stress_1.5$non_param_test$p.value)),
                   fill = "Projections climatiques")+
     ggplot2::geom_hline(yintercept = 90, color = "red", linetype = "dashed")+
@@ -82,16 +82,6 @@ get_boxplot_impact_family <- function(final_impacts_global) {
                      x = family, xend = family),
                  color = "darkgray", linetype = "dashed", position = ggplot2::position_nudge(x = -0.5, y = 0))+
     ggplot2::geom_text(data = n, ggplot2::aes(x = family, y = -4, label = paste0("n = ", count)), show.legend = FALSE, size = 3, fontface = "italic")
-  
-  
-  
-  #plot_family <- ggplot2::ggplot(final_impacts_family, ggplot2::aes(y = rank_1.5, x = rank_present))+
-    #ggplot2::geom_point(ggplot2::aes(color = statut))+
-    #ggplot2::scale_color_ordinal()+
-    #ggplot2::theme(legend.position = "none")+
-    #ggplot2::theme_classic()
-  
-  #kendal <- cor.test(final_impacts_statut$rank_present, final_impacts_statut$rank_1.5, method = "kendall" )
   
   return(list(stat = stat, test = test, boxplot = boxplot_family))
   
@@ -203,8 +193,6 @@ get_boxplot_impact_region <- function(final_impacts_region, final_impacts_global
   
   cowplot::plot_grid(box, box_diff, align = "hv")
   
-  
-  
   boxplot_region <- function(x, y, title, subtitle) {
     
     ggplot2::ggplot(final_impacts_region, ggplot2::aes(x = forcats::fct_rev(.data[[x]]), y = .data[[y]]))+
@@ -297,14 +285,15 @@ get_boxplot_impact_statut <- function(final_impacts_global){
     ggplot2::xlab("")+
     ggplot2::ylab("% d'exposition de l'aire de distribution\n au stress thermique")+
     ggplot2::labs(fill = "Statut UICN", color = "Projections climatiques",
-                  subtitle = paste0("Kruskal-Wallis (1989-2019), Khi2 = ", round(test$present_stress$non_param_test$statistic), ", df = ", test$present_stress$non_param_test$parameter, ", p-value = ", sprintf("%.4e", as.numeric(test$present_stress$non_param_test$p.value)),
+                  subtitle = paste0("Kruskal-Wallis (1986-2019), Khi2 = ", round(test$present_stress$non_param_test$statistic), ", df = ", test$present_stress$non_param_test$parameter, ", p-value = ", sprintf("%.4e", as.numeric(test$present_stress$non_param_test$p.value)),
                                     " ; Kruskal-Wallis (+1.5°C), Khi2 = ", round(test$stress_1.5$non_param_test$statistic), ", df = ", test$stress_1.5$non_param_test$parameter, ", p-value = ", sprintf("%.4e", as.numeric(test$stress_1.5$non_param_test$p.value))))+
     ggplot2::theme(axis.text.x = ggplot2::element_text(size = 13, face = "bold"),
                    axis.title.x = ggplot2::element_text(size = 13, face = "bold"),
                    axis.text.y = ggplot2::element_text(size = 12, face = "bold"),
                    axis.title.y = ggplot2::element_text(size = 13, face = "bold"),
                    plot.subtitle = ggplot2::element_text(size = 9))+
-    ggplot2::scale_color_manual(values = c("lightgray", "black"), label = c("1989-2019", "+1.5°C"))+
+    ggplot2::scale_color_manual(values = c("lightgray", "black"), label = c("1986-2019", "+1.5°C"))+
+    ggplot2::geom_hline(yintercept = 90, color = "red", linetype = "dashed")+
     ggplot2::geom_text(data = n, ggplot2::aes(x = statut, y = -2, label = paste0("n = ", count)), show.legend = FALSE, size = 4, fontface = "italic")
 
   return(list(stat = stat, test = test, boxplot = boxplot_statut))
@@ -355,8 +344,6 @@ get_boxplot_impact_habitat <- function(final_impacts_global) {
     
   }),  c("present_stress", "stress_1.5"))
   
-  
-
   final_impacts_habitat$habitat <- final_impacts_habitat$habitat |>
     forcats::fct_relevel("in_reef", "in_out_reef")
   
@@ -378,14 +365,15 @@ get_boxplot_impact_habitat <- function(final_impacts_global) {
     ggplot2::theme_classic()+
     ggplot2::xlab("")+
     ggplot2::ylab("% d'exposition de l'aire de distribution\n au stress thermique")+
+    ggplot2::geom_hline(yintercept = 90, color = "red", linetype = "dashed")+
     ggplot2::labs(fill = "Habitat", color = "Projection climatique",
-                  subtitle = paste0("Wilcoxon (1989-2019), U = ", round(test$present_stress$non_param_test$statistic), ", p-value = ", round(test$present_stress$non_param_test$p.value, 4),
+                  subtitle = paste0("Wilcoxon (1986-2019), U = ", round(test$present_stress$non_param_test$statistic), ", p-value = ", round(test$present_stress$non_param_test$p.value, 4),
                                     " ; Wilcoxon (+1.5°C), U = ", round(test$stress_1.5$non_param_test$statistic), " , p-value = ", round(test$stress_1.5$non_param_test$p.value, 4)))+
     ggplot2::theme(axis.text.x = ggplot2::element_text(size = 13, face = "bold"),
                    axis.title.x = ggplot2::element_text(size = 13, face = "bold"),
                    axis.text.y = ggplot2::element_text(size = 12, face = "bold"),
                    axis.title.y = ggplot2::element_text(size = 13, face = "bold"))+
-    ggplot2::scale_color_manual(values = c("lightgray", "black"), label = c("1989-2019", "+1.5°C"))+
+    ggplot2::scale_color_manual(values = c("lightgray", "black"), label = c("1986-2019", "+1.5°C"))+
     ggplot2::scale_fill_manual(values = c("#999999", "#E69F00"), label = c("inféodé au récif", "non inféodé au récif"))+
     ggplot2::scale_x_discrete(label = c("inféodé au récif", "non inféodé au récif"))+
     ggplot2::geom_text(data = n, ggplot2::aes(x = habitat, y = -2, label = paste0("n = ", count)), show.legend = FALSE, size = 4, fontface = "italic")
@@ -449,6 +437,7 @@ get_boxplot_impact_trait <- function(final_impacts_trait) {
     ggplot2::theme_classic()+
     ggplot2::xlab("")+
     ggplot2::ylab("% d'exposition de l'aire de distribution\n au stress thermique")+
+    ggplot2::geom_hline(yintercept = 90, color = "red", linetype = "dashed")+
     ggplot2::labs(fill = "Trait d'histoire\n de vie", color = "Projection climatique",
                   subtitle = paste0("Kruskal-Wallis (1989-2019), Khi2 = ", round(test$present_stress$non_param_test$statistic), ", df = ", test$present_stress$non_param_test$parameter, ", p-value = ", round(test$present_stress$non_param_test$p.value, 4),
                                     " ; Kruskal-Wallis (+1.5°C), Khi2 = ", round(test$stress_1.5$non_param_test$statistic), ", df = ", test$stress_1.5$non_param_test$parameter, ", p-value = ", round(test$stress_1.5$non_param_test$p.value, 4)))+
@@ -456,7 +445,7 @@ get_boxplot_impact_trait <- function(final_impacts_trait) {
                    axis.title.x = ggplot2::element_text(size = 13, face = "bold"),
                    axis.text.y = ggplot2::element_text(size = 12, face = "bold"),
                    axis.title.y = ggplot2::element_text(size = 13, face = "bold"))+
-    ggplot2::scale_color_manual(values = c("lightgray", "black"), label = c("1989-2019", "+1.5°C"))+
+    ggplot2::scale_color_manual(values = c("lightgray", "black"), label = c("1986-2019", "+1.5°C"))+
     ggplot2::scale_fill_brewer(palette = "Set1", label = c("compétitive", "généraliste", "stress tolérante", "opportuniste"))+
     ggplot2::scale_x_discrete(label = c("compétitive", "généraliste", "stress tolérante", "opportuniste"))+
     ggplot2::geom_text(data = n, ggplot2::aes(x = life_trait, y = -2, label = paste0("n = ", count)), show.legend = FALSE, size = 4, fontface = "italic")

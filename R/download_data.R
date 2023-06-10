@@ -107,78 +107,6 @@ download_coral_habitats <- function() {
   
 }
 
-# --- GLOBAL REEF LOCATION -----------------------------------------------------
-
-# download Millennium Coral Reef Mapping Project
-
-#This dataset shows the global distribution of coral reefs in 
-#tropical and subtropical regions
-
-download_millenium_reef <- function(overwrite = TRUE){
-  
-  # download to https://data.unep-wcmc.org/datasets/1
-  millenium_reef_url      <- paste0("https://datadownload-production.s3.us-east-1.",
-                               "amazonaws.com/WCMC008_CoralReefs2021_v4_1.zip")
-  millenium_reef_path     <- "data/"
-  millenium_reef_zip      <- "data/WCMC008_CoralReefs2021_v4_1.zip"
-  download.file(url = millenium_reef_url, destfile = millenium_reef_zip,
-                method = "curl")
-  unzip(millenium_reef_zip, exdir = millenium_reef_path)
-  unlink(millenium_reef_zip)
-  millenium_reef_old_name <- "data/14_001_WCMC008_CoralReefs2021_v4_1"
-  millenium_reef_new_name <- "data/millenium_reef"
-  file.rename(millenium_reef_old_name, millenium_reef_new_name)
-  millenium_reef_shp      <- paste0("data/millenium_reef/",
-                                  "01_Data/WCMC008_CoralReef2021_Py_v4_1.shp")
-  
-  return(millenium_reef_shp)
-  
-}
-
-# ---- GEOMORPHIC REEF MAP -----------------------------------------------------
-
-# Download geomorphic data
-
-#this data set contains global geomorphic reef data map
-
-download_geomorphic_reef <- function(){
-  
-  #dir.create("data/geomorphic_reef")
-  geomorphic_reef_path <- "data/geomorphic_reef"
-  geomorphic_reef_gpkg <- list.files(geomorphic_reef_path, pattern = ".gpkg",
-                                     full.names = TRUE)
-  
-  return(geomorphic_reef_gpkg)
-  
-}
-
-# --- BATHYMETRY ---------------------------------------------------------------
-
-# Download GEBCO Bathymetry
-
-# The GEBCO_2022 Grid was published in June 2022 and is a global terrain model
-# for ocean and land, providing elevation data, in meters, on a 15 arc-second
-# interval grid.
-
-download_gebco <- function(overwrite = TRUE){
-  
-  # download, unzip and drop zip
-  gebco_url <- paste0("https://www.bodc.ac.uk/data/open_download/gebco/",
-                      "gebco_2022_sub_ice_topo/zip/")
-  gebco_dir <- "data/gebco/"
-  gebco_zip <- "data/gebco/gebco_2022_sub_ice_topo.zip"
-  gebco_nc  <- "data/gebco/GEBCO_2022_sub_ice_topo.nc"
-  dir.create(gebco_dir)
-  download.file(url = gebco_url,
-                destfile = gebco_zip,
-                method = "curl")
-  unzip(gebco_zip, exdir = gebco_dir)
-  unlink(gebco_zip)
-  
-  return(gebco_nc)
-  
-}
-
 # ---- CORALS TRAITS -----------------------------------------------------------
 
 # Download depth corals traits
@@ -222,25 +150,4 @@ download_correspondance_aca_iucn <- function(){
   
   return(correspondance_aca_iucn_csv)
   
-}
-
-# ---- REEF AT RISK ------------------------------------------------------------
-
-download_reef_at_risk <- function(){
-  
-  # download to http://datasets.wri.org/dataset/b3f0de73-21ea-4ca4-b81f-c4f2d0019c5b/resource/2c3efd8e-3f8a-4d51-80bf-4c48e27ec67d/download/socialvulnerability.zip
-  
-  reef_at_risk_url  <- "http://datasets.wri.org/dataset/b3f0de73-21ea-4ca4-b81f-c4f2d0019c5b/resource/2c3efd8e-3f8a-4d51-80bf-4c48e27ec67d/download/socialvulnerability.zip"
-  reef_at_risk_path <- "data/"
-  reef_at_risk_zip  <- "data/socialvulnerability.zip"
-  old_name          <- "data/Social_Vulnerability"
-  new_name          <- "data/reef_at_risk"
-  
-  download.file(reef_at_risk_url, destfile = reef_at_risk_zip, method = "libcurl")
-  unzip(reef_at_risk_zip, exdir = reef_at_risk_path)
-  file.rename(old_name, new_name)
-  
-  reef_at_risk_shp <- list.files(new_name, full.names = TRUE, pattern = ".shp$")
-  
-  return(reef_at_risk_shp)
 }

@@ -1,3 +1,5 @@
+# Merge the depths of synonyms taxon or get depth of valid taxon ----
+
 get_valid_ctdb <- function(taxonomy, coral_traits_final){
 
   #targets::tar_load(taxonomy)
@@ -42,6 +44,7 @@ get_valid_ctdb <- function(taxonomy, coral_traits_final){
    
 }
 
+# Merge the range of synonyms taxon or get the range of valid taxon ----
 
 get_valid_coral_range <- function(taxonomy, corals_range){
   
@@ -89,6 +92,8 @@ get_valid_coral_range <- function(taxonomy, corals_range){
   return(valid_corals_range)
   
 }
+
+# Merge habitat of synonyms taxon or get habitat of valid taxon ----
 
 get_valid_habitats <- function(taxonomy, habitat_sp, correspondance_aca_iucn, Other = 1){
   
@@ -214,113 +219,4 @@ get_valid_habitats <- function(taxonomy, habitat_sp, correspondance_aca_iucn, Ot
   
 }
   
-  
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  # correspondance between aca and iucn
-  #valid_habitats <- parallel::mclapply(1:length(valid_habitats), function(i){
-    
-    #message("specie ", i)
-    #i = 627
-    
-    #final_genus_sp <- unique(valid_habitats[[i]]$final_genus_sp)
-    #iucn_hab_sp <- valid_habitats[[i]]
-    
-    #if(length(iucn_hab_sp$final_habitats) == 1){
-      
-     # val_aca_hab_sp <- correspondance_aca_iucn[, iucn_hab_sp$final_habitats]
-      #aca_hab_sp <- rownames(correspondance_aca_iucn)
-      #data_all <- data.frame(t(val_aca_hab_sp))
-      #colnames(data_all) <- aca_hab_sp
-      #data <- cbind(final_genus_sp, data_all)
-      
-      #data$Other <- Other
-      
-      #data
-      
-    #} else {
-      
-    #aca_hab_sp <- correspondance_aca_iucn[, iucn_hab_sp$final_habitats]
-    
-    #aca_hab_sp <- apply(aca_hab_sp, 1, sum)
-    
-    #aca_hab_sp_1 <- names(aca_hab_sp[aca_hab_sp != 0])
-    #val_aca_hab_sp_1 <- rep(1, length(aca_hab_sp_1))
-    #data_1 <- data.frame(t(val_aca_hab_sp_1))
-    #colnames(data_1) <- aca_hab_sp_1
-    
-    #aca_hab_sp_0 = names(aca_hab_sp[aca_hab_sp == 0])
-    #val_aca_hab_sp_0 <- rep(0, length(aca_hab_sp_0))
-    #data_0 <- data.frame(t(val_aca_hab_sp_0))
-    #colnames(data_0) <- aca_hab_sp_0
-    
-    #data <- cbind(final_genus_sp, data_1, data_0)
-    #data <- data[, c("final_genus_sp", "Small Reef", "Plateau", "Reef Slope", "Sheltered Reef Slope", 
-    #                 "Reef Crest", "Outer Reef Flat", "Inner Reef Flat", "Back Reef Slope", 
-    #                 "Deep Lagoon", "Shallow Lagoon", "Patch Reefs", "Terrestrial Reef Flat")]
-    
-    #data$Other <- Other
-    
-    #data
-    
-    #}
-    
-  #})
-  
-  #valid_habitats <- do.call(rbind, valid_habitats)
-  #valid_habitats <- valid_habitats[order(valid_habitats$final_genus_sp), ]
-
-  #return(valid_habitats)
-  
-#}
-  
-# ---- CORRESPONDANCE HABITATS STUFF -------------------------------------------
-
-### IUCN habitats
-
-# see webpage  : https://www.iucnredlist.org/resources/habitat-classification-scheme
-# see document : https://nc.iucnredlist.org/redlist/content/attachment_files/dec_2012_guidance_habitats_classification_scheme.pdf
-
-# 9.8 Marine Neritic – Coral Reef     - Massive limestone structure built up through the cementing and depositional activities of colonial stony corals, predominantly of the order Scleractinia, and other calcareous invertebrate and algal species.
-#  9.8.1 Outer reef channel           - Coral reef habitat on the foreslope (see 9.8.3) within or around the surge channels (spur and groove formations).
-#  9.8.2 Back slope                   - The area opposite of the foreslope (see 9.8.3), also referring to the reef flat or inner part of a barrier reef or atoll.
-#  9.8.3 Foreslope (outer reef slope) - The outer, seaward margin of a coral reef, also referring to the seaward side of a barrier reef or atoll.
-#  9.8.4 Lagoon                       - A shallow (less than a depth of 200 m), sheltered body of water separated from the open sea by coral reefs; also refers to the area between the shore and a fringing reef, between the coast and a barrier reef, or the portion of an atoll surrounded by the reef.
-#  9.8.5 Inter-reef soft substrate    - Area between reefs typically consisting of sandy substrate (see 9.4), but sometimes also with clay or silt sediments (see 9.5 and 9.6).
-#  9.8.6 Inter-reef rubble substrate  - Area between reefs consisting predominantly of coral or calcareous fragments.
-
-# IUCN -> ALLEN
-# Outer reef channel           - Reef Crest, Sheltered Reef Slope, Reef Slope, Plateau, Small Reef
-# Back slope                   - Inner Reef Flat, Outer Reef Flat, Back Reef Slope, 
-# Foreslope (outer reef slope) - Reef Crest, Sheltered Reef Slope, Reef Slope, Plateau, Small Reef
-# Lagoon                       - Shallow Lagoon, Deep Lagoon, Terrestrial Reef Flat, Patch Reefs
-# Inter-reef soft substrate    - Shallow Lagoon, Deep Lagoon, Terrestrial Reef Flat, Patch Reefs
-# Inter-reef rubble substrate  - Shallow Lagoon, Deep Lagoon, Terrestrial Reef Flat, Patch Reefs
-
-
-### ALLEN habitats
-
-# see webpage  : https://allencoralatlas.org/methods/#habitatmaps
-# see document : https://storage.googleapis.com/coral-atlas-field-data/training-materials/AllenCoralAtlas_GeomorphicClasses_v3.pdf
-
-# .Shallow Lagoon        - Shallow Lagoon is any closed to semi-enclosed, sheltered, flat-bottomed shallow sediment-dominated lagoon area.
-# .Deep Lagoon           - Deep Lagoon is any sheltered broad body of water semi-enclosed to enclosed by reef, with a variable depth (but shallower than surrounding ocean) and a soft bottom dominated by reef-derived sediment.
-# .Inner Reef Flat       - Inner Reef Flat is a low energy, sediment-dominated, horizontal to gently sloping platform behind the Outer Reef Flat.
-# .Outer Reef Flat       - Adjacent to the seaward edge of the reef, Outer Reef Flat is a level (near horizontal), broad and shallow platform that displays strong wave-driven zonation
-# .Reef Crest            - Reef Crest is a zone marking the boundary between the reef flat and the reef slope, generally shallow and characterized by highest wave energy absorbance.
-# .Terrestrial Reef Flat - Terrestrial Reef Flat is a broad, flat, shallow to semi-exposed area of fringing reef found directly attached to land at one side, and subject to freshwater run-off, nutrients and sediment.
-# .Sheltered Reef Slope  - Sheltered Reef Slope is any submerged, sloping area extending into Deep Water but protected from strong directional prevailing wind or current, either by land or by opposing reef structures.
-# .Reef Slope            - Reef Slope is a submerged, sloping area extending seaward from the Reef Crest (or Flat) towards the shelf break. Windward facing, or any direction if no dominant prevailing wind or current exists.
-# .Plateau               - Plateau is any deeper submerged, hard-bottomed, horizontal to gently sloping seaward facing reef feature.
-# .Back Reef Slope       - Back Reef Slope is a complex, interior, - often gently sloping - reef zone occurring behind the Reef Flat. Of variable depth (but deeper than Reef Flat and more sloped), it is sheltered, sediment-dominated and often punctuated by coral outcrops.
-# .Patch Reef            - Patch Reef is any small, detached to semi-detached lagoonal coral outcrop arising from sand-bottomed area.
+ 

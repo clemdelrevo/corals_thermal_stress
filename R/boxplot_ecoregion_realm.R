@@ -1,9 +1,9 @@
 
 get_boxplot_ecoregion_realm <- function(ecoregions, final_impacts_ecoregion, final_impacts_realm) {
   
-  targets::tar_load(ecoregions)
-  targets::tar_load(final_impacts_ecoregion)
-  targets::tar_load(final_impacts_realm)
+  #targets::tar_load(ecoregions)
+  #targets::tar_load(final_impacts_ecoregion)
+  #targets::tar_load(final_impacts_realm)
   
   final_impacts_ecoregion <- final_impacts_ecoregion[final_impacts_ecoregion$area == "area_exposed", ]
   final_impacts_ecoregion <- final_impacts_ecoregion[final_impacts_ecoregion$family != "Tubiporidae" & final_impacts_ecoregion$family != "Scleractinia incertae sedis", ]
@@ -12,7 +12,7 @@ get_boxplot_ecoregion_realm <- function(ecoregions, final_impacts_ecoregion, fin
   
   realm <- unique(ecoregions$REALM[ecoregions$Lat_Zone == "Tropical"])
   
-  boxplot_eco_realm <- lapply(levels(as.factor(realm)), function(realm) {
+  boxplot_eco_realm <- setNames(lapply(levels(as.factor(realm)), function(realm) {
   
     #realm = "Central Indo-Pacific"
     ecoregion <- ecoregions$ECOREGION[ecoregions$REALM %in% realm]
@@ -30,7 +30,9 @@ get_boxplot_ecoregion_realm <- function(ecoregions, final_impacts_ecoregion, fin
       ggplot2::geom_hline(yintercept = 90, color = "red", linetype = "dashed")+
       ggplot2::theme(legend.position = "none", axis.text.x = ggplot2::element_text(angle = 90),
                      plot.margin = ggplot2::margin(0, 0, 0, 0, "cm"),
-                     plot.title = ggplot2::element_text(face = "bold", hjust = 0))+
+                     panel.border = ggplot2::element_rect(linewidth = 1.5, fill = NA),
+                     plot.title = ggplot2::element_text(face = "bold", hjust = 0),
+                     )+
       ggplot2::geom_text(data = n, ggplot2::aes(x = region, y = -5, label = paste0("n = ", count)), show.legend = FALSE, size = 3, fontface = "italic", angle = 90)
     
     realm_sub <- final_impacts_realm[final_impacts_realm$region == realm, ]
@@ -56,7 +58,24 @@ get_boxplot_ecoregion_realm <- function(ecoregions, final_impacts_ecoregion, fin
     cowplot::plot_grid(boxplot_eco, boxplot_realm, nrow = 1, align = "h", axis = "lr", rel_widths = c(1,1))+
       ggplot2::theme(plot.margin = ggplot2::margin(0, -18, 0, 0, "cm"))
     
-  })
+  }), realm[order(realm)])
+  
+  dir.create("outputs/figure/boxplot_eco_realm/", showWarnings = FALSE)
+  
+  ggplot2::ggsave("outputs/figure/boxplot_eco_realm/Tropical_Atlantic.png", plot = boxplot_eco_realm$`Tropical Atlantic`, dpi = 500,
+                  width = 12, height = 8)
+  
+  ggplot2::ggsave("outputs/figure/boxplot_eco_realm/Western_Indo_Pacific.png", plot = boxplot_eco_realm$`Western Indo-Pacific`, dpi = 500,
+                  width = 12, height = 8)
+  
+  ggplot2::ggsave("outputs/figure/boxplot_eco_realm/Central_Indo_Pacific.png", plot = boxplot_eco_realm$`Central Indo-Pacific`, dpi = 500,
+                  width = 12, height = 8)
+  
+  ggplot2::ggsave("outputs/figure/boxplot_eco_realm/Tropical_Eastern_Pacific.png", plot = boxplot_eco_realm$`Tropical Eastern Pacific`, dpi = 500,
+                  width = 12, height = 8)
+  
+  ggplot2::ggsave("outputs/figure/boxplot_eco_realm/Eastern_Indo_Pacific.png", plot = boxplot_eco_realm$`Eastern Indo-Pacific`, dpi = 500,
+                  width = 12, height = 8)
   
 }
 

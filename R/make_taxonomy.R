@@ -1,3 +1,6 @@
+# create connexion with worms database to remove synonyms taxon and 
+# homogenize specie name between data
+
 make_taxonomy <- function(coral_traits_final, habitat_sp, corals_range) {
   
   #targets::tar_load(coral_traits_final)
